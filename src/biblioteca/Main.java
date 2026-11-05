@@ -1,26 +1,24 @@
 package biblioteca;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Main {
     public static void main(String[] args) {
-        List<Sala> disponibles = List.of(
-                new Sala("A", "Sala A", 2),
-                new Sala("B", "Sala B", 4),
-                new Sala("C", "Sala C", 6),
-                new Sala("D", "Sala D", 8)
-        );
+        RepositorioSalas salas = new RepositorioSalasMemoria();
+        RepositorioReservasMemoria reservas = new RepositorioReservasMemoria();
+        ReservaFacade fachada = new ReservaFacade(salas, reservas);
+        Estudiante laura = new Estudiante("E001", "Laura");
 
-        EstrategiaSeleccionSala porCapacidad = new SeleccionPorCapacidad();
-        System.out.println("Para 4 personas: "
-                + porCapacidad.seleccionar(disponibles, 4).orElse(null));
+        System.out.println("RESERVA EXITOSA");
+        fachada.realizarReserva(laura, LocalDate.now().plusDays(7),
+                        LocalTime.of(14, 0), 2, 4, new SeleccionPorCapacidad())
+                .ifPresent(System.out::println);
 
-        EstrategiaSeleccionSala preferida = new SeleccionSalaPreferida("C");
-        System.out.println("Preferida C: "
-                + preferida.seleccionar(disponibles, 4).orElse(null));
+        System.out.println("\nSIN SALA ADECUADA");
+        fachada.realizarReserva(laura, LocalDate.now().plusDays(8),
+                LocalTime.of(10, 0), 2, 10, new SeleccionPorCapacidad());
 
-        EstrategiaSeleccionSala preferidaNoAdecuada = new SeleccionSalaPreferida("B");
-        System.out.println("Preferida B para 7: "
-                + preferidaNoAdecuada.seleccionar(disponibles, 7).orElse(null));
+        System.out.println("\nReservas guardadas: " + reservas.obtenerTodas().size());
     }
 }
