@@ -24,20 +24,34 @@ public class Main {
                 4,
                 new SeleccionPorCapacidad()
         ).orElseThrow();
-
-        reserva.cambiarEstado(estado("Confirmada"));
         System.out.println(reserva);
 
-        reserva.cambiarEstado(estado("Cancelada"));
+        reserva.cancelar();
         System.out.println(reserva);
-    }
 
-    private static EstadoReserva estado(String nombre) {
-        return new EstadoReserva() {
-            public String nombre() { return nombre; }
-            public void confirmar(Reserva reserva) { }
-            public void cancelar(Reserva reserva) { }
-            public void finalizar(Reserva reserva) { }
-        };
+        System.out.println("\nIntentar confirmar una cancelada:");
+        try {
+            reserva.confirmar();
+        } catch (IllegalStateException ex) {
+            System.out.println("Operación rechazada: " + ex.getMessage());
+        }
+
+        Reserva otra = fachada.realizarReserva(
+                new Estudiante("E004", "Samuel"),
+                LocalDate.now().plusDays(10),
+                LocalTime.of(11, 0),
+                1,
+                2,
+                new SeleccionPorCapacidad()
+        ).orElseThrow();
+        otra.finalizar();
+        System.out.println(otra);
+
+        System.out.println("\nIntentar cancelar una finalizada:");
+        try {
+            otra.cancelar();
+        } catch (IllegalStateException ex) {
+            System.out.println("Operación rechazada: " + ex.getMessage());
+        }
     }
 }
