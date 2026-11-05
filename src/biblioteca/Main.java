@@ -16,26 +16,51 @@ public class Main {
 
         ReservaFacade fachada = new ReservaFacade(salas, reservas, observadores);
 
+        Estudiante laura = new Estudiante("E001", "Laura");
+
+        System.out.println("=== ESCENARIO PRINCIPAL ===");
         Reserva reserva = fachada.realizarReserva(
-                new Estudiante("E001", "Laura"),
+                laura,
                 LocalDate.now().plusDays(7),
                 LocalTime.of(14, 0),
                 2,
                 4,
                 new SeleccionPorCapacidad()
         ).orElseThrow();
-        System.out.println(reserva);
 
+        System.out.println(reserva);
+        System.out.println("\nLaura cancela la reserva:");
         reserva.cancelar();
         System.out.println(reserva);
 
-        System.out.println("\nIntentar confirmar una cancelada:");
+        System.out.println("\nIntento inválido: confirmar una reserva cancelada.");
         try {
             reserva.confirmar();
         } catch (IllegalStateException ex) {
             System.out.println("Operación rechazada: " + ex.getMessage());
         }
 
+        System.out.println("\n=== PRUEBA DE SALA PREFERIDA ===");
+        fachada.realizarReserva(
+                new Estudiante("E002", "Andrés"),
+                LocalDate.now().plusDays(8),
+                LocalTime.of(10, 0),
+                2,
+                4,
+                new SeleccionSalaPreferida("C")
+        ).ifPresent(System.out::println);
+
+        System.out.println("\n=== PRUEBA SIN SALA ADECUADA ===");
+        fachada.realizarReserva(
+                new Estudiante("E003", "Camila"),
+                LocalDate.now().plusDays(9),
+                LocalTime.of(9, 0),
+                2,
+                10,
+                new SeleccionPorCapacidad()
+        );
+
+        System.out.println("\n=== PRUEBA DE FINALIZACIÓN ===");
         Reserva otra = fachada.realizarReserva(
                 new Estudiante("E004", "Samuel"),
                 LocalDate.now().plusDays(10),
@@ -46,12 +71,5 @@ public class Main {
         ).orElseThrow();
         otra.finalizar();
         System.out.println(otra);
-
-        System.out.println("\nIntentar cancelar una finalizada:");
-        try {
-            otra.cancelar();
-        } catch (IllegalStateException ex) {
-            System.out.println("Operación rechazada: " + ex.getMessage());
-        }
     }
 }
